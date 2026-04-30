@@ -86,23 +86,9 @@
       <div class="auth-step">
         <div class="step-num">1</div>
         <div class="step-text">
-          <a href="#" id="auth-link" target="_blank">Click here to authorize Cloudbeds →</a><br>
-          Log in if prompted, then click <strong>Authorize</strong>.
-        </div>
-      </div>
-      <div class="auth-step">
-        <div class="step-num">2</div>
-        <div class="step-text">
-          You'll land on a page showing JSON. Find the <code>"code"</code> value and copy it.
-        </div>
-      </div>
-      <div class="auth-step">
-        <div class="step-num">3</div>
-        <div class="step-text">
-          Paste it here and connect:<br>
-          <input type="text" id="token-input" class="token-input" placeholder="Paste authorization code here...">
-          <button class="btn" onclick="submitToken()">Connect & Load Arrivals</button>
-          <div id="auth-error" class="error"></div>
+          <a href="#" id="auth-link">Click here to authorize Cloudbeds →</a><br>
+          Log in if prompted, then click <strong>Authorize</strong>.<br>
+          You'll be brought back here automatically with today's arrivals loaded.
         </div>
       </div>
     </div>
@@ -183,7 +169,16 @@
 let cbToken = null, currentGuest = null, currentPdfB64 = null;
 let sigCanvas, sigCtx, drawing = false, hasSig = false;
 
-// Load auth URL from server
+// Load auth URL from server and auto-read token from URL if redirected back
+const urlParams = new URLSearchParams(window.location.search);
+const urlToken = urlParams.get('token');
+if (urlToken) {
+  cbToken = urlToken;
+  window.history.replaceState({}, '', '/');
+  showScreen('list-screen');
+  loadGuests();
+}
+
 fetch('/auth/url').then(r => r.json()).then(d => {
   document.getElementById('auth-link').href = d.url;
 });
